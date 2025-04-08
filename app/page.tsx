@@ -80,45 +80,51 @@ export default function Home() {
         ) : (
           <div className="grid grid-cols-1 gap-8">
             <div className="bg-gray-800/80 rounded-xl p-6 shadow-xl">
-              <div className="flex justify-between items-center mb-6">
-                <Button
-                  onClick={handleReset}
-                  variant="outline"
-                  size="sm"
-                  className="flex items-center gap-1 bg-gray-700"
-                >
-                  <RotateCcw className="h-4 w-4" /> Рестартиране
-                </Button>
-
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+                {/* Restart Button */}
+                <div className="flex justify-center md:justify-start">
                   <Button
-                    onClick={handleStepBackward}
-                    disabled={currentStep === 0 && animationPhase === 0}
+                    onClick={handleReset}
                     variant="outline"
-                    size="icon"
-                    className="h-10 w-10 bg-gray-700"
+                    size="sm"
+                    className="flex items-center gap-1 bg-gray-700"
                   >
-                    <ChevronLeft className="h-6 w-6" />
+                    <RotateCcw className="h-4 w-4" /> Рестартиране
                   </Button>
+                </div>
 
-                  <div className="px-4 py-2 bg-gray-700 rounded-md text-center min-w-[180px]">
-                    <div className="text-sm text-gray-300">Стъпка</div>
-                    <div className="text-xl font-semibold">
-                      {currentStep + 1} от {totalSteps + 1}
+                {/* Step Navigation */}
+                <div className="flex justify-center md:justify-center">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      onClick={handleStepBackward}
+                      disabled={currentStep === 0 && animationPhase === 0}
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 bg-gray-700"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </Button>
+
+                    <div className="px-4 py-2 bg-gray-700 rounded-md text-center min-w-[180px]">
+                      <div className="text-sm text-gray-300">Стъпка</div>
+                      <div className="text-xl font-semibold">
+                        {currentStep + 1} от {totalSteps + 1}
+                      </div>
                     </div>
-                  </div>
 
-                  <Button
-                    onClick={handleStepForward}
-                    disabled={
-                      currentStep === totalSteps && animationPhase === 2
-                    }
-                    variant="outline"
-                    size="icon"
-                    className="h-10 w-10 bg-gray-700"
-                  >
-                    <ChevronRight className="h-6 w-6" />
-                  </Button>
+                    <Button
+                      onClick={handleStepForward}
+                      disabled={
+                        currentStep === totalSteps && animationPhase === 2
+                      }
+                      variant="outline"
+                      size="icon"
+                      className="h-10 w-10 bg-gray-700"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -152,19 +158,21 @@ export default function Home() {
               </div>
 
               <div className="mt-8 flex justify-center">
-                <div className="flex gap-1">
-                  {Array.from({ length: totalSteps + 1 }).map((_, index) => (
-                    <div
-                      key={index}
-                      className={`h-2 w-8 rounded-full ${
-                        index < currentStep
-                          ? "bg-emerald-500"
-                          : index === currentStep
-                          ? "bg-emerald-300"
-                          : "bg-gray-600"
-                      }`}
-                    />
-                  ))}
+                <div className="w-full max-w-[80%] overflow-hidden">
+                  <div className="grid grid-cols-[repeat(auto-fit,minmax(0,1fr))] gap-1">
+                    {Array.from({ length: totalSteps + 1 }).map((_, index) => (
+                      <div
+                        key={index}
+                        className={`h-2 rounded-full transition-colors ${
+                          index < currentStep
+                            ? "bg-emerald-500"
+                            : index === currentStep
+                            ? "bg-emerald-300"
+                            : "bg-gray-600"
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
