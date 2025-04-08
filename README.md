@@ -56,7 +56,7 @@ This project is licensed under the MIT License.
 
 ## 🤝 Contributing
 
-Contributions are welcome! If you'd like to improve this visualizer or add decryption support, feel free to fork and open a pull request.
+Contributions are welcome! If you'd like to improve this visualizer, feel free to fork and open a pull request.
 
 # 👤 Author
 
