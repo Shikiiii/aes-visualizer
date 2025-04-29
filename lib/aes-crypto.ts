@@ -343,8 +343,7 @@ export function aesEncrypt(
 
     // We only need to show the first round in detail
     if (round === 1) {
-      // Add a "repeated" state to indicate that the process repeats
-      states.push([...currentState.map((row) => [...row])])
+      let afterRepeatedStates;
 
       // Skip to the last round
       if (round < 9) {
@@ -354,8 +353,13 @@ export function aesEncrypt(
           currentState = shiftRows(currentState)
           currentState = mixColumns(currentState)
           currentState = addRoundKey(currentState, roundKeys[r])
+          if (r === 9) afterRepeatedStates = currentState;
         }
       }
+
+      // Add a "repeated" state to indicate that the process repeats
+      if (afterRepeatedStates) states.push([...afterRepeatedStates.map((row) => [...row])])
+
       break
     }
   }
