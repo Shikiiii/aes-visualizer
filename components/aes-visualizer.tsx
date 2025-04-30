@@ -16,6 +16,8 @@ import {
   arrayBufferToHex,
   matrixToArrayBuffer,
   stringToArrayBuffer,
+  sBox as aesSBox,
+  mixColumns as mixColumnsAES
 } from "../lib/aes-crypto";
 
 interface AESVisualizerProps {
@@ -47,6 +49,14 @@ export function AESVisualizer({
   const secondCellRef = useRef<HTMLDivElement | null>(null);
   const resultBoxRef = useRef<HTMLDivElement | null>(null);
 
+  // The fixed matrix used in AES MixColumns
+  const mixMatrix = [
+    ["02", "03", "01", "01"],
+    ["01", "02", "03", "01"],
+    ["01", "01", "02", "03"],
+    ["03", "01", "01", "02"]
+  ];
+
   // Define which steps are AddRoundKey operations
   const addRoundKeySteps = [2, 6, 10];
 
@@ -55,6 +65,18 @@ export function AESVisualizer({
     firstArrow: "M0,0 Q0,0 0,0",
     secondArrow: "M0,0 Q0,0 0,0"
   });
+
+  const [mixColumnsResult, setMixColumnsResult] = useState<number[][]>([]);
+  useEffect(() => {
+    console.log("Actual current step:", actualCurrentStep);
+
+    if (actualCurrentStep === 16) {
+      //@ts-ignore valid code
+      const result = mixColumnsAES(currentState);
+      setMixColumnsResult(result);
+      console.log("This is mix column result: ", mixColumnsResult);
+    }
+  }, [actualCurrentStep])
 
   // Calculate the positions and draw arrows when components are mounted and whenever highlighted cells change
   useEffect(() => {
@@ -269,6 +291,7 @@ export function AESVisualizer({
     );
   }
 
+  //@ts-ignore
   let currentState;
   const triggerSteps: Record<number, number> = {
     2: 9,
@@ -611,6 +634,202 @@ export function AESVisualizer({
               </div>
             </div>
           )}
+
+          {actualCurrentStep === 11 || actualCurrentStep === 26 ? (
+            // SVG Overlay for Arrow
+            <>
+              <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <path d={undefined} fill="none" stroke="black" strokeWidth="2" markerEnd="url(#arrowhead)" />
+                <defs>
+                  <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                    <polygon points="0 0, 10 3.5, 0 7" fill="black" />
+                  </marker>
+                </defs>
+              </svg>
+
+              <div className="grid grid-cols-1 gap-2 justify-center">
+                {currentState.map((row, i) => (
+                  <div key={`row-${i}`} className="flex flex-row gap-2">
+                    {row.map((value, j) => {
+                      // Get the value from the currentState
+                      const cellValue = value;
+                      
+                      // Convert the value from binary to HEX
+                      const hexValue = cellValue.toString(16).padStart(2, "0").toUpperCase();
+                      
+                      // Use the AES-128 S-Box to get the substituted value
+                      const sBoxValue = aesSBox[cellValue].toString(16).padStart(2, "0").toUpperCase();
+
+                      let bgColor;
+                      if (j === 0) {
+                        bgColor = "rgb(249, 115, 22)";
+                      } else {
+                        bgColor = "rgba(75, 85, 99, 0.8)"
+                      }
+                      
+                      return (
+                        <motion.div
+                          key={`cell-${i}-${j}`}
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{
+                            opacity: 1,
+                            scale: 1,
+                            backgroundColor: bgColor,
+                            borderColor: "transparent",
+                            borderWidth: "0px",
+                          }}
+                          transition={{ duration: 0.3, delay: i * 0.1 }}
+                          className="w-16 h-16 flex items-center justify-center rounded-md text-black font-mono relative"
+                        >
+                          <div className="text-center">
+                            <div className="text-xs text-white/70">({i},{j})</div>
+                            <div className="font-bold text-white">{j === 0 ? sBoxValue : hexValue}</div>
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : null}
+
+
+      {actualCurrentStep === 17 && (
+        /* Matrix Multiplication Visualization */
+        <div className="flex items-center justify-center mb-8 w-full">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+            className="flex items-center"
+          >
+            {/* b matrix with brackets */}
+            <div className="flex items-stretch h-44">
+              {/* Left bracket */}
+              <div className="text-white text-5xl flex flex-col justify-between h-full">
+                <div>⎡</div>
+                <div>⎢</div>
+                <div>⎢</div>
+                <div>⎣</div>
+              </div>
+
+              {/* b matrix */}
+              <div className="flex flex-col justify-around mx-2 gap-3">
+                {mixColumnsResult !== undefined && mixColumnsResult.map((row, i) => {
+                  return (
+                    <motion.div
+                    key={`cell-${i}-mix-columns`}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      backgroundColor: "rgb(16, 185, 129)",
+                      borderColor: "transparent",
+                      borderWidth: "0px",
+                    }}
+                    transition={{ duration: 0.3, delay: i * 0.1 }}
+                    className="w-16 h-16 flex items-center justify-center rounded-md text-black font-mono relative"
+                    >
+                    <div className="text-center">
+                      <div className="font-bold text-white">{row[0].toString(16).padStart(2, "0").toUpperCase()}</div>
+                    </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+
+              {/* Right bracket */}
+              <div className="text-white text-5xl flex flex-col justify-between h-full ml-1">
+                <div>⎤</div>
+                <div>⎥</div>
+                <div>⎥</div>
+                <div>⎦</div>
+              </div>
+            </div>
+
+            {/* Equals sign */}
+            <div className="text-white text-2xl mx-4">=</div>
+
+            {/* Mix matrix with brackets */}
+            <div className="flex items-stretch h-44">
+              {/* Left bracket */}
+              <div className="text-white text-5xl flex flex-col justify-between h-full">
+                <div>⎡</div>
+                <div>⎢</div>
+                <div>⎢</div>
+                <div>⎣</div>
+              </div>
+
+              {/* Mix matrix */}
+              <div className="flex flex-col justify-around mx-2">
+                {mixMatrix.map((row, i) => (
+                  <div key={`mix-row-${i}`} className="h-10 flex items-center">
+                    {row.map((val, j) => (
+                      <div key={`mix-${i}-${j}`} className="w-8 text-center font-mono text-purple-300">
+                        {val}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+
+              {/* Right bracket */}
+              <div className="text-white text-5xl flex flex-col justify-between h-full ml-1">
+                <div>⎤</div>
+                <div>⎥</div>
+                <div>⎥</div>
+                <div>⎦</div>
+              </div>
+            </div>
+
+            {/* Multiplication sign */}
+            <div className="text-white text-2xl mx-4">×</div>
+
+            {/* a matrix with brackets */}
+            <div className="flex items-stretch h-44">
+              {/* Left bracket */}
+              <div className="text-white text-5xl flex flex-col justify-between h-full">
+                <div>⎡</div>
+                <div>⎢</div>
+                <div>⎢</div>
+                <div>⎣</div>
+              </div>
+
+              {/* a matrix */}
+              <div className="flex flex-col justify-around mx-2 gap-3">
+                {currentState.map((row, i) => (
+                  <motion.div
+                  key={`cell-${i}-mix-columns`}
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{
+                    opacity: 1,
+                    scale: 1,
+                    backgroundColor: "rgb(139, 92, 246)",
+                    borderColor: "transparent",
+                    borderWidth: "0px",
+                  }}
+                  transition={{ duration: 0.3, delay: i * 0.1 }}
+                  className="w-16 h-16 flex items-center justify-center rounded-md text-black font-mono relative"
+                  >
+                  <div className="text-center">
+                    <div className="font-bold text-white">{row[0].toString(16).padStart(2, "0").toUpperCase()}</div>
+                  </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* Right bracket */}
+              <div className="text-white text-5xl flex flex-col justify-between h-full ml-1">
+                <div>⎤</div>
+                <div>⎥</div>
+                <div>⎥</div>
+                <div>⎦</div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      )}
 
         {currentStep === 1 &&
           currentRoundKey &&
