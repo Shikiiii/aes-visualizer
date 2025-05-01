@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Upload, Lock, FileText } from "lucide-react";
 import { hexToArrayBuffer } from "@/lib/aes-crypto";
-import CryptoJS from "crypto-js";
 
 export function DecryptionBox() {
   const [decryptedText, setDecryptedText] = useState<string | null>(null);

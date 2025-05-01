@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, RotateCcw } from "lucide-react";
 import { AESVisualizer } from "@/components/aes-visualizer";
 import { DecryptionBox } from "@/components/decryption-box";
+import { AesInformation } from "@/components/aes-information";
 
 export default function Home() {
   const [plaintext, setPlaintext] = useState("");
@@ -15,6 +16,7 @@ export default function Home() {
   const [isConfigured, setIsConfigured] = useState(false);
   const [animationPhase, setAnimationPhase] = useState(0);
   const [actualCurrentStep, setActualCurrentStep] = useState<number>(1);
+  const [isShowingInfo, setIsShowingInfo] = useState(false);
 
   const totalSteps = 11;
   const actualTotalSteps = 34;
@@ -70,20 +72,29 @@ export default function Home() {
         </p>
 
         {!isConfigured ? (
-          <>
-            <div className="max-w-2xl mx-auto">
-              <InputForm
-                plaintext={plaintext}
-                setPlaintext={setPlaintext}
-                encryptionKey={encryptionKey}
-                setEncryptionKey={setEncryptionKey}
-                onStart={handleStart}
-              />
-            </div>
+          isShowingInfo ? (
+            // Case 2: Not configured but showing info
+            <AesInformation
+              setIsShowingInfo={setIsShowingInfo}
+            />
+          ) : (
+            // Case 1: Not configured and not showing info
+            <>
+              <div className="max-w-2xl mx-auto">
+                <InputForm
+                  plaintext={plaintext}
+                  setPlaintext={setPlaintext}
+                  encryptionKey={encryptionKey}
+                  setEncryptionKey={setEncryptionKey}
+                  onStart={handleStart}
+                  setIsShowingInfo={setIsShowingInfo}
+                />
+              </div>
 
-            {/* Add the decryption box */}
-            <DecryptionBox />
-          </>
+              {/* Decryption box */}
+              <DecryptionBox />
+            </>
+          )
         ) : (
           <div className="grid grid-cols-1 gap-8">
             <div className="bg-gray-800/80 rounded-xl p-6 shadow-xl">
