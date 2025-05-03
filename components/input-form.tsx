@@ -19,6 +19,7 @@ interface InputFormProps {
   encryptionKey: string;
   setEncryptionKey: (value: string) => void;
   onStart: () => void;
+  setIsShowingInfo: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export function InputForm({
@@ -27,6 +28,7 @@ export function InputForm({
   encryptionKey,
   setEncryptionKey,
   onStart,
+  setIsShowingInfo,
 }: InputFormProps) {
   const [plaintextError, setPlaintextError] = useState("");
   const [keyError, setKeyError] = useState("");
@@ -127,6 +129,14 @@ export function InputForm({
               <Play className="mr-2 h-4 w-4" /> Начало
             </Button>
           </div>
+
+          <Button
+            onClick={() => setIsShowingInfo((prev: boolean) => !prev)}
+            variant="ghost"
+            className="w-full mt-2 bg-blue-800 text-gray-300 hover:text-blue-800"
+          >
+            Информация за алгоритъма
+          </Button>
 
           <Button
             onClick={handleUseExample}
