@@ -161,7 +161,7 @@ export function AESVisualizer({
 
         const exportObj = {
           algorithm: "AES-128-ECB", // We're using ECB mode (no IV) for simplicity
-          //plaintext: paddedPlaintext.substring(0, 16),
+          plaintext: paddedPlaintext.substring(0, 16),
           key: paddedKey.substring(0, 16),
           plaintext_hex: arrayBufferToHex(
             stringToArrayBuffer(paddedPlaintext.substring(0, 16))
